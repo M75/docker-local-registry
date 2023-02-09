@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  registry:
+    image: registry:latest
+    restart: always
+    ports:
+    - "5000:5000"
+    environment:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+    volumes:
+      - "./auth:/auth"
+      - "./data:/data"
+  
+
+  nginx:
+    image: nginx:1.23.3
+    ports:
+      - "80:80"
+    volumes:
+        - type: bind
+          source: ./nginx.conf
+          target: /etc/nginx/nginx.conf
+          read_only: true
+    depends_on:
+      - registry
